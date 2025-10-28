@@ -27,7 +27,6 @@ services:
       - wordpress_data:/var/www/vhosts/localhost/html
       - php_extensions:/usr/local/lsws/lsphp${PHP_VERSION}/lib/php
       - wordpress_logs:/var/log/wordpress
-      - ./php-custom.ini:/usr/local/lsws/lsphp8.2/etc/php/8.2/litespeed/conf.d/99-custom.ini
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1"]
       interval: 2s
