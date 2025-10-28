@@ -87,7 +87,7 @@ networks:
   wordpress_network:
     driver: bridge
     internal: true
-  coolify-proxy: # <-- ADDED THIS
+  coolify: # <-- ADDED THIS
     external: true
 
 volumes:
