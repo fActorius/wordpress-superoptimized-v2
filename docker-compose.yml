@@ -28,20 +28,22 @@ services:
       - php_extensions:/usr/local/lsws/lsphp${PHP_VERSION}/lib/php
       - wordpress_logs:/var/log/wordpress
     healthcheck:
-      test:
-        - CMD
-        - curl
-        - "-f"
-        - "http://127.0.0.1"
+      test: ["CMD", "curl", "-f", "http://127.0.0.1"]
       interval: 2s
       timeout: 10s
       retries: 10
-    networks:
+    networks: # <-- MODIFIED
       - wordpress_network
-      - wordpress_public
+      - coolify-proxy
     depends_on:
       - mysql
     restart: always
+    labels: # <-- ADDED THIS BLOCK
+      - "traefik.enable=true"
+      - "traefik.http.routers.wordpress.rule=Host(`${SERVICE_FQDN_WORDPRESS}`)"
+      - "traefik.http.routers.wordpress.tls=true"
+      - "traefik.http.routers.wordpress.tls.certresolver=letsencrypt"
+      - "traefik.http.services.wordpress.loadbalancer.server.port=80"
 
   mysql:
     container_name: mysql
@@ -54,7 +56,7 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     networks:
-      - wordpress_network
+      - wordpress_network # This is correct, keep it internal
     restart: always
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
@@ -67,19 +69,26 @@ services:
     image: bitnami/phpmyadmin:${PHPMYADMIN_VERSION}
     environment:
       - DATABASE_HOST=mysql
-    networks:
+    networks: # <-- MODIFIED
       - wordpress_network
+      - coolify-proxy
     depends_on:
       - mysql
     restart: always
+    labels: # <-- ADDED THIS BLOCK
+      - "traefik.enable=true"
+      - "traefik.http.routers.phpmyadmin.rule=Host(`${SERVICE_FQDN_PHPMYADMIN}`)"
+      - "traefik.http.routers.phpmyadmin.tls=true"
+      - "traefik.http.routers.phpmyadmin.tls.certresolver=letsencrypt"
+      - "traefik.http.services.phpmyadmin.loadbalancer.server.port=8080"
 
 # Definizione dei networks
 networks:
   wordpress_network:
     driver: bridge
     internal: true
-  wordpress_public:
-    driver: bridge
+  coolify-proxy: # <-- ADDED THIS
+    external: true
 
 volumes:
   wordpress_data:
