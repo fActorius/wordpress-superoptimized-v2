@@ -32,13 +32,13 @@ services:
       interval: 2s
       timeout: 10s
       retries: 10
-    networks: # <-- MODIFIED
+    networks:
       - wordpress_network
-      - coolify-proxy
+      - coolify # <-- CORRECTED
     depends_on:
       - mysql
     restart: always
-    labels: # <-- ADDED THIS BLOCK
+    labels:
       - "traefik.enable=true"
       - "traefik.http.routers.wordpress.rule=Host(`${SERVICE_FQDN_WORDPRESS}`)"
       - "traefik.http.routers.wordpress.tls=true"
@@ -56,22 +56,22 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     networks:
-      - wordpress_network # This is correct, keep it internal
+      - wordpress_network
     restart: always
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 5s
       retries: 10
       interval: 5s
-  
+
   phpmyadmin:
     container_name: phpmyadmin
-    image: phpmyadmin:latest  # <-- CHANGED: Using the official image
+    image: phpmyadmin:latest
     environment:
-      - PMA_HOST=mysql      # <-- CHANGED: Correct env var for this image
+      - PMA_HOST=mysql
     networks:
       - wordpress_network
-      - coolify-proxy
+      - coolify # <-- CORRECTED
     depends_on:
       - mysql
     restart: always
@@ -80,14 +80,14 @@ services:
       - "traefik.http.routers.phpmyadmin.rule=Host(`${SERVICE_FQDN_PHPMYADMIN}`)"
       - "traefik.http.routers.phpmyadmin.tls=true"
       - "traefik.http.routers.phpmyadmin.tls.certresolver=letsencrypt"
-      - "traefik.http.services.phpmyadmin.loadbalancer.server.port=80" # <-- CHANGED: Port is 80
+      - "traefik.http.services.phpmyadmin.loadbalancer.server.port=80"
 
 # Definizione dei networks
 networks:
   wordpress_network:
     driver: bridge
     internal: true
-  coolify: # <-- ADDED THIS
+  coolify: # <-- CORRECTED
     external: true
 
 volumes:
