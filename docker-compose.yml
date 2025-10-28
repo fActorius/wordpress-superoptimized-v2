@@ -3,7 +3,7 @@ services:
     container_name: wordpress
     image: anideaforbusiness/wordpress-ols-super-optimized-eg:latest
     build:
-      context: .a
+      context: .
       dockerfile: Dockerfile
       args:
         WORDPRESS_VERSION: ${WORDPRESS_VERSION}
